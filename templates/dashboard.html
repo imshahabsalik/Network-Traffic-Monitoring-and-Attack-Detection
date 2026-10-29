@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Network Security Monitoring System</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<meta http-equiv="refresh" content="30">
+
+</head>
+
+<body class="bg-dark">
+
+<nav class="navbar navbar-dark mb-4">
+
+<div class="container-fluid px-4">
+
+    <span class="navbar-brand">
+        Network Security Monitoring System
+    </span>
+
+</div>
+
+
+</nav>
+
+<div class="container">
+
+<div class="row">
+
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Total Packets</h5>
+                <h2>{{ total_packets }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Total Alerts</h5>
+                <h2>{{ total_alerts }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Critical</h5>
+                <h2>{{ critical_alerts }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>High</h5>
+                <h2>{{ high_alerts }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Medium</h5>
+                <h2>{{ medium_alerts }}</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4>Protocol Distribution</h4>
+
+                <canvas id="protocolChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4>Alert Distribution</h4>
+
+                <canvas id="alertChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4>Top Source IPs</h4>
+
+                <table class="table">
+
+                    <tr>
+                        <th>IP</th>
+                        <th>Packets</th>
+                    </tr>
+
+                    {% for ip, count in top_ips.items() %}
+
+                    <tr>
+                        <td>{{ ip }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4>Top Destination Ports</h4>
+
+                <table class="table">
+
+                    <tr>
+                        <th>Port</th>
+                        <th>Count</th>
+                    </tr>
+
+                    {% for port, count in top_ports.items() %}
+
+                    <tr>
+                        <td>{{ port }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<hr>
+
+<div class="card mb-4">
+
+    <div class="card-body">
+
+        <h4>Recent Alerts</h4>
+
+        <table class="table">
+
+            <tr>
+                <th>Severity</th>
+                <th>Alert Type</th>
+                <th>Source IP</th>
+            </tr>
+
+                {% for alert in recent_alerts %}
+
+                <tr>
+
+            
+                <td>
+
+                    {% if alert["severity"] == "CRITICAL" %}
+
+                        <span class="badge bg-danger">
+                            CRITICAL
+                        </span>
+
+                    {% elif alert["severity"] == "HIGH" %}
+
+                        <span class="badge bg-warning text-dark">
+                            HIGH
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-primary">
+                            {{ alert["severity"] }}
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>{{ alert["alert_type"] }}</td>
+
+                <td>{{ alert["source_ip"] }}</td>
+                ```
+
+                </tr>
+
+                {% endfor %}
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="card mb-4">
+
+    <div class="card-body">
+
+        <h4>Recent Traffic Logs</h4>
+
+        <table class="table">
+
+            <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Protocol</th>
+                <th>Size</th>
+            </tr>
+
+            {% for log in recent_logs %}
+
+            <tr>
+
+                <td>{{ log.source_ip }}</td>
+
+                <td>{{ log.destination_ip }}</td>
+
+                <td>{{ log.protocol }}</td>
+
+                <td>{{ log.packet_size }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+</div>
+
+<a href="/alerts" class="btn btn-danger">
+    View Alerts
+</a>
+
+<a href="/logs" class="btn btn-primary">
+    View Traffic Logs
+</a>
+
+</div>
+
+<script>
+
+const protocolLabels = {{ protocol_labels | tojson }};
+const protocolValues = {{ protocol_values | tojson }};
+
+new Chart(
+    document.getElementById("protocolChart"),
+    {
+        type: "pie",
+        data: {
+            labels: protocolLabels,
+            datasets: [{
+                label: "Protocols",
+                data: protocolValues
+            }]
+        }
+    }
+);
+
+const alertLabels = {{ alert_labels | tojson }};
+const alertValues = {{ alert_values | tojson }};
+
+new Chart(
+    document.getElementById("alertChart"),
+    {
+        type: "bar",
+        data: {
+            labels: alertLabels,
+            datasets: [{
+                label: "Alerts",
+                data: alertValues
+            }]
+        }
+    }
+);
+
+</script>
+
+</body>
+</html>
